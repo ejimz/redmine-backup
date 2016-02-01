@@ -11,6 +11,8 @@ mysql_password="pw"
 
 app_dir="/var/redmine/current"
 
+rotation_days=10
+
 cur_date=$(date +%d%m%y)
 cur_timestamp=$(date +%s)
 
@@ -45,6 +47,13 @@ check_backup_dir()
     exit 1
   fi
   mkdir -p $backup_dir/$cur_date
+}
+
+check_rotation()
+{
+  if [ "x$backup_dir" != "x" ] ;then
+    find $backup_dir -type d -mtime +$rotation_days | xargs rm -rf
+  fi
 }
 
 get_sql()
@@ -89,6 +98,7 @@ if [ "x$nfs" = "xtrue" ];then
   mount_nfs
 fi
 
-check_backup_dir
-get_sql
-get_app_dir
+#check_backup_dir
+#get_sql
+#get_app_dir
+check_rotation
