@@ -98,7 +98,7 @@ if [ "x$nfs" = "xtrue" ];then
   mount_nfs
 fi
 
-#check_backup_dir
-#get_sql
-#get_app_dir
+check_backup_dir
+get_sql
+get_app_dir
 check_rotation
