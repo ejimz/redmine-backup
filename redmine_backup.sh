@@ -11,6 +11,7 @@ mysql_password="pw"
 
 app_dir="/var/redmine/current"
 
+rotation="true"
 rotation_days=10
 
 cur_date=$(date +%d%m%y)
@@ -101,4 +102,5 @@ fi
 check_backup_dir
 get_sql
 get_app_dir
-check_rotation
+[ "x$rotation" == "xtrue" ] && check_rotation
+
