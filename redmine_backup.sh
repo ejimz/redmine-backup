@@ -59,7 +59,7 @@ check_rotation()
 
 get_sql()
 {
-  mysqldump --opt --password=$mysql_password --user=$mysql_user $mysql_db > $backup_dir/$cur_date/$cur_timestamp.sql &> /dev/null
+  mysqldump --opt --password=$mysql_password --user=$mysql_user $mysql_db > $backup_dir/$cur_date/$cur_timestamp.sql
   if [ $? -ne 0 ];then
     echo "Problem getting mysql dump. Exiting..."
     exit 1
