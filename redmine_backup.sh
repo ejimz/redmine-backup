@@ -1,6 +1,5 @@
 #/bin/bash
 
-nfs="false"
 nfs_url="nfs.domain.com:/nfs"
 nfs_mount_point="/mnt/"
 backup_dir="/mnt/redmine"
@@ -8,6 +7,8 @@ backup_dir="/mnt/redmine"
 mysql_db="db"
 mysql_user="user"
 mysql_password="pw"
+mysql_host="localhost"
+mysql_port="3306"
 
 app_dir="/var/redmine/current"
 
@@ -17,13 +18,13 @@ rotation_days=10
 cur_date=$(date +%d%m%y)
 cur_timestamp=$(date +%s)
 
-function show_help()
+func_show_help()
 {
   echo "-p Store backup in nfs."
   echo "-h Show this help."
 }
 
-function mount_nfs()
+func_mount_nfs()
 {
   [ -d $nfs_mount_point ] || mkdir $nfs_mount_point
   mount | grep "$nfs_url" > /dev/null
@@ -40,7 +41,7 @@ function mount_nfs()
   fi
 }
 
-check_backup_dir()
+func_check_backup_dir()
 {
   [ -d $backup_dir ] || mkdir -p $backup_dir
   if [ $? -ne 0 ];then
@@ -50,16 +51,16 @@ check_backup_dir()
   mkdir -p $backup_dir/$cur_date
 }
 
-check_rotation()
+func_check_rotation()
 {
   if [ "x$backup_dir" != "x" ] ;then
     find $backup_dir -type d -mtime +$rotation_days | xargs rm -rf
   fi
 }
 
-get_sql()
+func_get_sql()
 {
-  mysqldump --opt --password=$mysql_password --user=$mysql_user $mysql_db > $backup_dir/$cur_date/$cur_timestamp.sql
+  mysqldump --opt --host=$mysql_host --port=$mysql_port --password=$mysql_password --user=$mysql_user $mysql_db > $backup_dir/$cur_date/$cur_timestamp.sql
   if [ $? -ne 0 ];then
     echo "Problem getting mysql dump. Exiting..."
     exit 1
@@ -68,7 +69,7 @@ get_sql()
   fi
 }
 
-get_app_dir()
+func_get_app_dir()
 {
   cp -r $app_dir/ $backup_dir/$cur_date/$cur_timestamp > /dev/null
   if [ $? -ne 0 ];then  
@@ -85,22 +86,22 @@ while getopts ":n" opt; do
       nfs="true"
       ;;
     h)
-      show_help
+      func_show_help
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
-      show_help
+      func_show_help
       exit 1
       ;;
   esac
 done
 
 if [ "x$nfs" = "xtrue" ];then
-  mount_nfs
+  func_mount_nfs
 fi
 
-check_backup_dir
-get_sql
-get_app_dir
-[ "x$rotation" == "xtrue" ] && check_rotation
+func_check_backup_dir
+func_get_sql
+func_get_app_dir
+[ "x$rotation" == "xtrue" ] && func_check_rotation
 
