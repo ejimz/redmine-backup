@@ -1,26 +1,11 @@
 #/bin/bash
 
-nfs_url="nfs.domain.com:/nfs"
-nfs_mount_point="/mnt/"
-backup_dir="/mnt/redmine"
-
-mysql_db="db"
-mysql_user="user"
-mysql_password="pw"
-mysql_host="localhost"
-mysql_port="3306"
-
-app_dir="/var/redmine/current"
-
-rotation="true"
-rotation_days=10
-
-cur_date=$(date +%d%m%y)
-cur_timestamp=$(date +%s)
-
 func_show_help()
 {
-  echo "-p Store backup in nfs."
+  echo "-n Store backup in nfs."
+  echo "-u NFS url"
+  echo "-p NFS mount point"
+  echo "-b Backups dir"
   echo "-h Show this help."
 }
 
@@ -80,13 +65,43 @@ func_get_app_dir()
   fi
 }
 
-while getopts ":n" opt; do
+
+nfs="false"
+nfs_url="nfs.domain.com:/nfs"
+nfs_mount_point="/mnt/"
+backup_dir="/mnt/redmine"
+
+mysql_db="db"
+mysql_user="user"
+mysql_password="pw"
+mysql_host="localhost"
+mysql_port="3306"
+
+app_dir="/var/redmine/current"
+
+rotation="true"
+rotation_days=10
+
+cur_date=$(date +%d%m%y)
+cur_timestamp=$(date +%s)
+
+while getopts ":p:b:u:nh" opt; do
   case $opt in
     n)
       nfs="true"
       ;;
+    u)
+      nfs_url="$OPTARG"
+      ;;
+    p)
+      nfs_mount_point="$OPTARG"
+      ;;
+    b)
+      backup_dir="$OPTARG"
+      ;;
     h)
       func_show_help
+      exit 1
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
